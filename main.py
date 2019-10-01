@@ -37,19 +37,29 @@ test_Y = labels[:, int(data.shape[0] * 0.7):]
 
 m = train_Y.shape[1]
 # train model to recognize the digit zero
+neural_networks = []
+accuracies = []
+for d in range(10): 
+	train_Y_d = np.zeros((1, m))
+	test_Y_d = np.zeros((1, test_Y.shape[1]))
 
-train_Y_0 = np.zeros((1, m))
-test_Y_0 = np.zeros((1, test_Y.shape[1]))
+	train_Y_d[0][train_Y[0] == chr(48 + d)] = 1
+	test_Y_d[0][test_Y[0] == chr(48 + d)] = 1
 
-train_Y_0[0][train_Y[0] == '0'] = 1
-test_Y_0[0][test_Y[0] == '0'] = 1
+	layer_dims = [train_X.shape[0], 8, 4, 1]
 
-layer_dims = [train_X.shape[0], 4, 1]
+	network = nn.nn_model(train_X, train_Y_d, layer_dims, learning_rate = 0.01, num_iterations = 500, lambd = 0.001, showfigures=False)
+	accuracy = 100 * nn.calculate_accuracy(test_X, test_Y_d, network)
+	
+	neural_networks.append(network)
+	accuracies.append(accuracy)
 
-network = nn.nn_model(train_X, train_Y_0, layer_dims, learning_rate = 0.01, num_iterations = 200, lambd = 0, showfigures=True)
+avgAccuracy = 0
+for i in range(len(accuracies)):	
+	avgAccuracy = avgAccuracy + accuracies[i]
 
+avgAccuracy = avgAccuracy / len(accuracies)
 
-accuracy = 100 * nn.calculate_accuracy(test_X, test_Y_0, network)
-print("\r                                                                           ")
-print ("\rAccuracy: " + str(accuracy) + "%", end = "\n")
+print ("\r                                                           ")
+print ("\rAverage Accuracy: " + str(avgAccuracy) + "%", end = "\n")
 
